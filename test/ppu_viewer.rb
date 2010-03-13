@@ -3,7 +3,7 @@ require 'gosu'
 
 require 'cpu'
 require 'ines'
-require 'memory/memory'
+require 'memory/main_memory'
 require 'color_palette'
 
 class PPUViewer < Gosu::Window
@@ -12,10 +12,10 @@ class PPUViewer < Gosu::Window
     super(800,800,false)
     self.caption='PPU Viewer'
     ines = Ines.new
-    mem = Memory.new(ines.load('C:/tutor.nes'))
-    @core = Cpu.new(mem)
+    mem = MainMemory.new(ines.load("..//assembler//tutor.nes"))
+    @core = Cpu.new(mem,0xC000)
     @addr = 0x00
-    @core.run(114*262,true)
+    @core.run(114*262,false)
     @w,@h = (width/2)/8,(height/4)/8
     @font = Gosu::Font.new(self,'arial',14)
     @x,@y = 0,0
@@ -24,7 +24,7 @@ class PPUViewer < Gosu::Window
 
   def draw
     @x,@y = 0,0
-    @core.run(100,true)
+    @core.run(300,false)
     draw_palettes
     draw_pattern_tables
     draw_name_tables
