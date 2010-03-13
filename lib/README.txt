@@ -1,6 +1,6 @@
    main.rb is an example of running a happiNES instance and at the moment is probably not that interesting.  If I were you I would check out the debugger in debugger.rb.  Below is a list of commands currently supported by the debugger as well as some other items of note:
 
-   When you start a debugger session it will create the NES hardware, load a rom, load any configuration files (more info. at the bottom of this page), and then sit on the prompt.
+   When you start a debugger session it will create the NES hardware, load a rom, load any configuration files (more info. at the bottom of this page), and then sit on the prompt.  You can jump to the prompt at any time thus pausing execution, by sending an SIGINT to the debugger (Ctrl+C):
 
 'g' -> "go":
    Runs the program till a break is reached, you signal it to pause, or something bad happens.
