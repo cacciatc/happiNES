@@ -1,6 +1,6 @@
 @@@happiNES is a NES emulator.  
 
-  This is a prototype written in ruby.  Once things are working well enough and I like the design, we will start implementing components in c/c++ and then write ruby bindings.  Check out the archive folder to see my original start on the emulator using ragel and c.
+  This is a prototype written in ruby.  Once things are working well enough and I like the design, we will start implementing components in c/c++ and then write ruby bindings.  Check out my old_happiNES folder to see my original start on the emulator using ragel and c.
 
   Currently most work is happening in the picture processing unit.
 
