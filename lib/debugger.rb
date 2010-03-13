@@ -216,8 +216,6 @@ class Debugger
   end
 end
 
-#d = Debugger.new(ARGV[0],ARGV[1])
-d = Debugger.new("..\\NES101\\","tutor.nes")
+d = Debugger.new("..\\assembler\\","tutor.nes")
 d.load_config('config.fig')
-#d.break_points << BreakPoint.new({:fname=>'tutorprg.p65',:line_no=>34})
 d.run
