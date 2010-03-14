@@ -78,12 +78,26 @@ class Ppu
     @output_buffer = Array.new(PIXELS_X*PIXELS_Y)
     @cur_pixel = 0
   end
-  def get_nametable(index)
+  def get_name_table(index)
     start  = (index*0x0400 + 0x2000)
     finish = start + 0x02BF
     (start..finish).inject([]) do |table,address|
       table << @vram.read(address)
     end
+  end
+  def get_pattern_table(index)
+    start  = (index*0x1000)
+    finish = start + 0x1000
+    (start..finish).inject([]) do |table,address|
+      table << @vram.read(address)
+    end
+  end
+  def get_attribute_table(index)
+    start  = (index*0x0400 +0x23C0)
+    finish = start + 0x0030
+    (start..finish).inject([]) do |table,address|
+      table << @vram.read(address)
+    end 
   end
   
   def reset!
@@ -142,7 +156,8 @@ class Ppu
       when VRAM_ADDR_2_REG
         @vram_io_address = ((@vram_io_address)&0x00FF)*256 + (new_value)
       when VRAM_IO_REG
-        puts sprintf "%X - %X",@vram_io_address,new_value if $irb_debug
+        #puts "#{sprintf "%02X",@vram_io_address} #{sprintf "%02X",new_value}"
+        puts "hererererer #{new_value}" if @vram_io_address == 0x2453
         @vram.write(@vram_io_address,new_value)
         @vram_io_address += @vram_io_address_inc_amt
       when SPR_RAM_ADDR_REG
