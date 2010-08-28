@@ -6,14 +6,15 @@ require 'ines'
 require 'memory/main_memory'
 require 'color_palette'
 
+require '../../bitrap/lib/bitrap'
+
 class PPUViewer < Gosu::Window
   include ColorPalette
+  include Bitrap
   def initialize
     super(1200,800,false)
     self.caption='PPU Viewer'
-    ines = Ines.new
-    mem = MainMemory.new(ines.load("..//assembler//tutor.nes"))
-    @core = Cpu.new(mem,0xC000)
+    create_hardware
     @addr = 0x00
     @core.run(114*262,false)
     @w,@h = (width/2)/8,(height/4)/8
@@ -21,16 +22,35 @@ class PPUViewer < Gosu::Window
     @font2 = Gosu::Font.new(self,'arial',11)
     @x,@y = 0,0
     @mono = [Gosu::Color.new(0,0,0),Gosu::Color.new(0,0,255),Gosu::Color.new(0,0,255),Gosu::Color.new(0,0,0),Gosu::Color.new(255,0,0),Gosu::Color.new(0,0,0)]
+    @cur_scanline = 0
+    @bit_screens = [Bitmap.new(1200,800),Bitmap.new(1200,800)]
+    @bit_switch = false
+  end
+  
+  def create_hardware
+    ines = Ines.new
+    mem = MainMemory.new(ines.load("..//assembler//tutor.nes"))
+    @core = Cpu.new(mem,0xC000)
   end
 
   def draw
     @x,@y = 0,0
     @core.run(300,false)
+    if @bit_switch
+      screen = @bit_screens.first
+    else
+      screen = @bit_screens.last
+    end
     draw_palettes
-    #draw_pattern_tables
+    #draw_pattern_tables(screen)
     draw_name_tables
   end
-  def draw_pattern_tables
+  def draw_next_scanline
+    if @cur_scanline < 240
+      
+    end
+  end
+  def draw_pattern_tables(screen)
     #one
     pt = @core.ppu.get_pattern_table(0)
     index = 0
@@ -77,26 +97,7 @@ class PPUViewer < Gosu::Window
       index +=1
     end
   end
-  #in monochrome
-  #def draw_pattern_tables
-    #@tile_index = 0x40
-    #while @tile_index <= 0
-     # pixels = @core.ppu.pattern_table_tile(0,@tile_index)
-      #pixels.each do |p|
-       # puts p,@mono[p]
-        #draw_quad(@x,@y,@mono[p],@x,@y,@mono[p],@x,@y,@mono[p],@x,@y,@mono[p])
-        #@x += 1
-        #if @x > 7
-       #   @y += 1
-        #end
-        #if @x >= width
-         # @x = 0
-         # @y += 1
-        #end
-      #end
-     # @tile_index += 1
-    #end
-  #end
+  
   def draw_palettes
     @addr = 0x3F00
     @x,@y=0,0

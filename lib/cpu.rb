@@ -36,8 +36,19 @@ class Cpu
     @cycles_completed_this_pass = 0
     @interrupt_requested = false
     @interrupt_type = IRQ
+    
+    @paused = false
 
     @ppu.reset!
+  end
+  
+  def pause!
+    @paused = !@paused
+    puts @paused
+  end
+  
+  def paused?
+    @paused
   end
 
   #interface for outside modules to request an interrupt (most likely the PPU or APU)
@@ -78,7 +89,7 @@ class Cpu
   def run(this_many_cycles,log=false)
     @cycles_completed_this_pass = 0
     prev_cycles_this_pass = 0
-    while @cycles_completed_this_pass <= this_many_cycles
+    while (@cycles_completed_this_pass <= this_many_cycles) and !@paused
       #fetch,load,execute
       opcode = load(@pc)
       old_pc = @pc           if log
@@ -90,7 +101,6 @@ class Cpu
       process_interrupt if @interrupt_requested
       prev_cycles_this_pass = @cycles_completed_this_pass
     end
-    @ppu.output_buffer
   end
 
   #a somewhat incorrect log, sometimes it will not show the correct memory value!

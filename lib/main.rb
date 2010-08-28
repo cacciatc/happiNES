@@ -4,7 +4,7 @@ require 'memory/main_memory'
 require 'memory/nrom'
 
 ines = Ines.new
-mmc = ines.load('C:\Documents and Settings\ccacciaX\My Documents\Projects\rh\NES101\tutor.nes')
+mmc = ines.load('C:\Documents and Settings\\My Documents\Projects\rh\NES101\tutor.nes')
 mem = MainMemory.new(mmc)
 core = Cpu.new(mem)
 

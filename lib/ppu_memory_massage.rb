@@ -13,7 +13,6 @@ module PPUMemoryMassage
     @m.register_for_reads(self,Ppu::STATUS_REG)
     
     #pull in CHR ROM
-    #(0..(1024*8)-1).each {|addr| @vram.write(addr,@m.vrom_read(addr))}
     chr_address_range = 0..(1024*8)-1
     @vram.write_block(chr_address_range,@m.chr_read_block(chr_address_range))
     

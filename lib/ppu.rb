@@ -21,7 +21,8 @@ class Ppu
   (DMA_REG = 0x4014).freeze
   #NTSC
   (SCANLINES_PER_FRAME     = 262).freeze
-  (CPU_CYCLES_PER_SCANLINE = 114).freeze
+  (CPU_CYCLES_PER_SCANLINE = 341).freeze
+  (MEMORY_FETCHES          = 170).freeze
   (CPU_CYCLES_PER_VBLANK   = SCANLINES_PER_FRAME*CPU_CYCLES_PER_SCANLINE).freeze
   (PIXELS_X = 256).freeze
   (PIXELS_Y = 224).freeze
@@ -37,14 +38,21 @@ class Ppu
 
   attr_accessor :output_buffer
   attr_accessor :vram,:spr
+  attr_reader :current_scanline, :memory_fetch_phase
   def initialize(memory,cpu)
     @m = memory
     @cpu = cpu
     #used to count cycles till VBLANK
     @acc_cycles = 0
+    #used to count cycles for each scanline
+    @scan_cycles = 0
     #rendering vars
     @current_scanline = 0
     @current_pixel    = 0
+    @current_tile     = 0
+    @memory_fetch_phase = 1
+    
+    @current_tile = 2
 
     #CTRL1
     @nims_enabled     = false
@@ -78,21 +86,31 @@ class Ppu
     @output_buffer = Array.new(PIXELS_X*PIXELS_Y)
     @cur_pixel = 0
   end
-  def get_name_table(index)
+  def palette(type)
+    case type
+      when :sprite
+        
+      when :image
+    end
+  end
+  def name_table(index)
     start  = (index*0x0400 + 0x2000)
     finish = start + 0x02BF
     (start..finish).inject([]) do |table,address|
       table << @vram.read(address)
     end
   end
-  def get_pattern_table(index)
+  def pattern_table(index)
     start  = (index*0x1000)
     finish = start + 0x1000
     (start..finish).inject([]) do |table,address|
       table << @vram.read(address)
     end
   end
-  def get_attribute_table(index)
+  def pattern_tables
+    pattern_table(0)+pattern_table(1)
+  end
+  def attribute_table(index)
     start  = (index*0x0400 +0x23C0)
     finish = start + 0x0030
     (start..finish).inject([]) do |table,address|
@@ -100,16 +118,64 @@ class Ppu
     end 
   end
   
+  def name_table_byte(addr)
+    @vram.read((@current_name_table*0x0400 + 0x2000) + addr)
+  end
+  
+  def attribute_table_byte(addr)
+    
+  end
+  
   def reset!
-
+    @current_scanline = 0
+    @scan_cycles = 0
+    @memory_fetch_phase = 1
+    @current_tile = 2
   end
 
-  def scanline_time?(cycles)
-    cycles >= CPU_CYCLES_PER_SCANLINE
+  def render_scanlines!(cycles_to_process)
+    while cycles_to_process >= 1
+      if next_scanline?
+        @current_scanline = (@current_scanline + 1)%SCANLINES_PER_FRAME
+        @scan_cycles -= CPU_CYCLES_PER_SCANLINE - 1 #PPU does nothing for one cycle
+      end
+      case @current_scanline
+        #the first 20 since VINT was set no rendering!
+        when 0..19 #do nothing
+        when 20 #the 21 accesses memory but no rendering
+          memory_fetch
+        when 21..260
+          memory_fetch
+        when 261 #nothing happens here
+        else #invalid state
+      end
+      cycles_to_process -= 2
+    end
+  end
+  def memory_fetch
+    case @memory_fetch_phase
+      when 1 #fetch a name table byte
+        name_table_byte(@current_tile)
+        attribute_table_byte(0)
+        pattern_table(0)
+        pattern_table(1)
+      when 2 #fetch an attribute table byte
+      when 3 #pattern table bitmap #0
+      when 4 #pattern table bitmap #1
+      else #invalid state
+    end
+    @memory_fetch_phase = (@memory_fetch_phase + 1) % 170
+  end
+  
+  def next_scanline?
+    @scan_cycles >= CPU_CYCLES_PER_SCANLINE
   end
   def update(cycles)
-    @acc_cycles += cycles*3
+    cycles *= 3
+    @acc_cycles  += cycles
+    @scan_cycles += cycles
     vblank! if vblank?
+    render_scanlines!(cycles)
   end
   def color_mode?
     @color_mode == COLOR
@@ -157,7 +223,6 @@ class Ppu
         @vram_io_address = ((@vram_io_address)&0x00FF)*256 + (new_value)
       when VRAM_IO_REG
         #puts "#{sprintf "%02X",@vram_io_address} #{sprintf "%02X",new_value}"
-        puts "hererererer #{new_value}" if @vram_io_address == 0x2453
         @vram.write(@vram_io_address,new_value)
         @vram_io_address += @vram_io_address_inc_amt
       when SPR_RAM_ADDR_REG
