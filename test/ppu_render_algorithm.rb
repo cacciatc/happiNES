@@ -28,6 +28,7 @@ class NESRenderer < Gosu::Window
     #debug info:
     @title_font.draw("current_scanline: #{@core.ppu.current_scanline}",5,605,1,1,1,0xFFFFFFFF)
     @title_font.draw("memory fetch phase: #{@core.ppu.memory_fetch_phase}",5,625,1,1,1,0xFFFFFFFF)
+    #@core.ppu.render_pattern_table
   end
   def update
     @core.run(60,true)
