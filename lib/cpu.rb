@@ -2,6 +2,7 @@ require 'memory/main_memory'
 require 'ppu'
 require 'memory/register'
 require 'cpu/addressing_modes'
+require 'cpu/status_operations'
 
 class Cpu
   (WORD_SIZE = 256).freeze
@@ -16,7 +17,7 @@ class Cpu
   (ZERO_PAGE_INDEXED = {:cycles=>4,:bytes=>2}).freeze
   (ABSOLUTE_INDEXED  = {:cycles=>5,:bytes=>3}).freeze
   
-  include AddressingModes
+  include AddressingModes, StatusOperations
 
   attr_accessor :ppu,:m,:x_reg,:y_reg,:a_reg,:status
   attr_reader   :pc
@@ -355,50 +356,4 @@ class Cpu
     old_pc%WORD_SIZE == new_pc%WORD_SIZE
   end
 
-  #status flag accessors
-  def disable_interrupts!
-    @status |= (1<<2)
-  end
-  def enable_interrupts!
-    @status &= ~(1<<2)
-  end
-  def interrupts_disabled?
-    @status&(1<<2) == 0? false : true
-  end
-  def disable_decimal_mode!
-    @status |= (1<<3)
-  end
-  def enable_decimal_mode!
-    @status &= ~(1<<3)
-  end
-  def decimal_mode_disabled?
-    @status&(1<<3) == 0? false : true
-  end
-  def set_zero_flag!
-    @status |= (1<<1)
-  end
-  def clear_zero_flag!
-    @status &= ~(1<<1)
-  end
-  def zero_flag?
-    @status&(1<<1) == 0? false : true
-  end
-  def set_negative_flag!
-    @status |= (1<<7)
-  end
-  def clear_negative_flag!
-    @status &= ~(1<<7)
-  end
-  def negative_flag?
-    @status&(1<<7) == 0? false : true
-  end
-  def set_carry_flag!
-    @status |= (1<<0)
-  end
-  def clear_carry_flag!
-    @status &= ~(1<<0)
-  end
-  def carry_flag?
-    @status&(1<<0) == 0? false : true
-  end
 end
