@@ -43,7 +43,7 @@ class PPUViewer < Gosu::Window
     end
     draw_palettes
     #draw_pattern_tables(screen)
-    draw_name_tables
+    #draw_name_tables
   end
   def draw_next_scanline
     if @cur_scanline < 240
