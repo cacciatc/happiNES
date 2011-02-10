@@ -1,5 +1,3 @@
-require 'lib/cpu/addressing_modes'
-
 describe "AddressingModes" do
   before do
     @a = eval %q{

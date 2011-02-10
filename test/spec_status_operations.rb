@@ -1,5 +1,3 @@
-require 'lib/cpu/status_operations'
-
 describe "StatusOperations" do
   before do
     @a = eval %q{
