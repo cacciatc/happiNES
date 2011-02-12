@@ -37,13 +37,14 @@ my $linenum;          # Current line number
 my $currentfile;      # Current file name
 my @IR = ( );         # Intermediate Representation list
 my @code = ( );       # Final binary
+my @listings = ( );   # Final listing
 my %segments = ( );   # Segment map for gensymming segment labels
 my $segment = "text"; # Current segment
 
 
 my ($codecount, $datacount, $fillercount);
 
-my ($verbose, $trace, $printbin);
+my ($verbose, $trace, $printbin, $listing_flag);
 
 # Error reporting routines
 
@@ -127,7 +128,7 @@ sub walk {
     for (@IR) {
         ($linenum, $currentfile) = @$_;
         my $node_type = $$_[2];
-        printf("%s,%s,%s,%s\n",$linenum,$currentfile,$node_type,$pc);
+        push @listings,sprintf("%s,%s,%s,%s\n",$linenum,$currentfile,$node_type,$pc);
         if (exists $$dispatchtable{$node_type}) {
             &{$$dispatchtable{$node_type}}($_);
         } elsif (exists $$dispatchtable{"UNKNOWN"}) {
@@ -1388,6 +1389,8 @@ sub parse_args {
 	} elsif ($_ eq "-6510") {
 	    %opcodes = (%opcodes, %opcodes_6510);
 	    $instrs .= $instrs_6510;
+        } elsif ($_ eq "-l") {
+            $listing_flag = 1;
         } elsif ($_ =~ /^-/) {
             usage();
         } elsif ($count == 0) {
@@ -1412,6 +1415,7 @@ sub usage() {
     print "\n        -t:    Trace mode: list important, specific steps";
     print "\n        -b:    Print binary as hex dump to screen before writing";
     print "\n        -6510: Allow undocumented opcodes for the 6510 chip";
+    print "\n        -l:    Print a listing file";
     print "\n\n";
     exit;
 }
@@ -1421,15 +1425,17 @@ sub write_file() {
         my $codesize = @code;
         print "Writing $codesize bytes: $codecount code, $datacount data, $fillercount filler.\n";
     }
-    open OUTPUT, ">$outfile" or die "Failed to create $outfile";
+    open OUTPUT, ">$outfile.nes" or die "Failed to create $outfile.nes";
     binmode OUTPUT;
     print OUTPUT pack "c*", @code;
 }
 
 sub write_listing_file() {
+    if($listing_flag){
     open OUTPUT, ">$outfile.lis" or die "Failed to create $outfile.lis";
     binmode OUTPUT;
-    print OUTPUT, @listing;
+    print OUTPUT @listings;
+    }
 }
 
 sub print_binary() {
