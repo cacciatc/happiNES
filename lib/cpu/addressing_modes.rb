@@ -20,7 +20,7 @@ module AddressingModes
     (new_most*WORD_SIZE)+new_least
   end
   def relative(value)
-    @pc+(value <= WORD_SIZE/2 ? value : value-WORD_SIZE-2)
+    @pc+(value <= 0x7F ? value : value-0xFF-1)
   end
   def indexed_indirect(value)
     least = @m.read((value+@x_reg)%WORD_SIZE)
