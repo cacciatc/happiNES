@@ -216,6 +216,6 @@ class Debugger
   end
 end
 
-#d = Debugger.new("..\\assembler\\","tutor.nes")
+d = Debugger.new("assembler/","tutor.nes")
 #d.load_config('config.fig')
-#d.run
+d.run

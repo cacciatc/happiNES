@@ -1426,6 +1426,12 @@ sub write_file() {
     print OUTPUT pack "c*", @code;
 }
 
+sub write_listing_file() {
+    open OUTPUT, ">$outfile.lis" or die "Failed to create $outfile.lis";
+    binmode OUTPUT;
+    print OUTPUT, @listing;
+}
+
 sub print_binary() {
     if ($printbin) {
         my $count = 0;
@@ -1443,7 +1449,7 @@ sub print_binary() {
 # Main routine.
 
 my @passes = (\&find_easy_addr_modes, \&verify_IR, \&instruction_select, 
-              \&assemble, \&print_binary, \&write_file);
+              \&assemble, \&print_binary, \&write_file, \&write_listing_file);
 
 parse_args();
 

@@ -2,11 +2,11 @@
 require 'rubygems'
 require 'gosu'
 
-require 'lib/cpu'
-require 'lib/ines'
-require 'lib/memory/main_memory'
-require 'lib/color_palette'
-require 'lib/ppu_spy'
+require 'cpu'
+require 'ines'
+require 'memory/main_memory'
+require 'color_palette'
+require 'ppu_spy'
 
 require '../bitrap/lib/bitrap'
 
